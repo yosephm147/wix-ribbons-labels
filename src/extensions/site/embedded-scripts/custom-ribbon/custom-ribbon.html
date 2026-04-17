@@ -1,0 +1,150 @@
+<script type="application/json" id="wix-custom-ribbon-config-json">
+  {{labels}}
+</script>
+
+<style>
+  .comp-lkps559k_r_comp-lgvxewql-container {
+    display: flex !important;
+    flex-direction: column;
+  }
+
+  .wix-custom-ribbon-badge {
+    position: absolute;
+    z-index: 10;
+    box-sizing: border-box;
+    pointer-events: none;
+  }
+  .wix-custom-ribbon-badge svg {
+    display: block;
+  }
+  .wix-custom-ribbon-wrapper {
+    position: relative !important;
+  }
+  /* Outside badges: flow in document, not over the image (see render.js outsideLayout). */
+  .wix-custom-ribbon-badge[data-outside-layout="true"] {
+    position: relative !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
+    transform: none !important;
+    z-index: 1;
+  }
+  .wix-custom-ribbon-clip--outside {
+    position: relative !important;
+  }
+  /* Outside badges: injected under [data-hook="not-image-container"] > a (see main.js). */
+  [data-wix-label-outside-strip] {
+    position: relative;
+    box-sizing: border-box;
+  }
+  /*
+   * After title / after price: same flex row as editor preview — title (or price) + growing
+   * slot with justify-content from margin presets (main.js sets inline justify on the slot).
+   */
+  .wix-custom-ribbon-outside-after-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    align-self: stretch;
+  }
+  /*
+   * Row is a direct child of product-item-name-and-price-layout so it spans the full text column
+   * (100% of shrink-wrapped inner parents was too narrow for justify-content: flex-end).
+   */
+  .wix-custom-ribbon-outside-after-row--price-full-width,
+  .wix-custom-ribbon-outside-after-row--title-full-width {
+    width: 100%;
+    max-width: 100%;
+    flex-basis: 100%;
+    align-self: stretch;
+  }
+  .wix-custom-ribbon-outside-after-slot {
+    flex: 1 1 120px;
+    min-width: 0;
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  .wix-custom-ribbon-outside-after-slot--price {
+    flex: 1 1 80px;
+  }
+  /* Before title / before price: parent is often column flex; need an explicit row wrapper (previewShared). */
+  .wix-custom-ribbon-outside-before-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    width: 100%;
+    max-width: 100%;
+    min-width: 0;
+    box-sizing: border-box;
+    align-self: stretch;
+  }
+  /*
+   * PDP product page (main.js): data-wix-ribbon-pdp-row = before | after | after-title;
+   * data-wix-ribbon-pdp-slot = title | price.
+   */
+  [data-wix-ribbon-pdp-row] {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    gap: 8px !important;
+    box-sizing: border-box;
+  }
+  [data-wix-ribbon-pdp-row="before"] {
+    flex-wrap: wrap !important;
+  }
+  [data-wix-ribbon-pdp-row="after"],
+  [data-wix-ribbon-pdp-row="after-title"] {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0;
+    align-self: stretch !important;
+    flex-basis: 100%;
+    flex-wrap: wrap !important;
+  }
+  [data-wix-ribbon-pdp-row="after-title"] {
+    flex-wrap: nowrap !important;
+  }
+  [data-wix-ribbon-pdp-slot] {
+    display: flex;
+    align-items: center;
+    box-sizing: border-box;
+  }
+  [data-wix-ribbon-pdp-slot="title"] {
+    flex: 1 1 120px;
+    min-width: 0;
+  }
+  [data-wix-ribbon-pdp-slot="price"] {
+    flex: 1 1 80px;
+    min-width: 0;
+  }
+  [data-wix-ribbon-pdp-row="after-title"] > :not([data-wix-ribbon-pdp-slot]) {
+    flex: 0 1 auto;
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+  [data-wix-ribbon-pdp-row="after-title"] > [data-wix-ribbon-pdp-slot="title"] {
+    flex: 1 0 120px;
+    min-width: max-content;
+    max-width: none;
+  }
+  [data-wix-ribbon-pdp-row="after-title"]
+    > [data-wix-ribbon-pdp-slot="title"]
+    [data-wix-label-outside-strip],
+  [data-wix-ribbon-pdp-row="after-title"]
+    > [data-wix-ribbon-pdp-slot="title"]
+    .wix-custom-ribbon-badge {
+    flex-shrink: 0;
+  }
+</style>
+
+<script type="module" src="./index.js"></script>

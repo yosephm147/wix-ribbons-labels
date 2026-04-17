@@ -1,0 +1,25 @@
+{
+  "name": "backend-dev-api",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "tsx server.ts",
+    "dev": "tsx watch server.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "packageManager": "pnpm@10.12.1",
+  "dependencies": {
+    "dotenv": "^16.5.0",
+    "cors": "^2.8.6",
+    "express": "^5.2.1",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "@types/cors": "^2.8.19",
+    "@types/express": "^5.0.3",
+    "@types/node": "^22.15.3",
+    "tsx": "^4.19.4",
+    "typescript": "~5.8.2"
+  }
+}

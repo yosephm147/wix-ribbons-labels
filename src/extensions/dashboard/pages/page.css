@@ -1,0 +1,94 @@
+/* WDS Page content wrapper — class hash varies; match stable suffix */
+.page-container [class*="Page__contentContainer"] {
+  padding-bottom: 0px !important;
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container [class*="Page__scrollableContainer"] {
+  height: unset !important;
+}
+
+.page-container {
+  height: calc(100vh - 48px);
+  display: flex;
+  flex-direction: column;
+  overflow-x: unset !important;
+}
+
+.page-content {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-body {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Active tab: underline + title (label) color */
+.dashboard-page-tabs {
+  --wds-tabs-selection-height: 1px;
+  /* --wds-tabs-label-fill-active: #f3ad07; */
+}
+
+.dashboard-page-tabs [role="tab"][data-active="true"] {
+  /* border-image: none !important; */
+  /* border-bottom: 2px solid #f3ad07 !important; */
+}
+
+.label-design-panel-tabs [role="tablist"] {
+  min-width: 100% !important;
+  justify-content: space-around !important;
+}
+.label-design-panel-tabs [role="tab"] {
+  margin: 0 !important;
+}
+
+/* Ribbon editor: left config panel + right preview */
+.editorLayout {
+  display: flex;
+  width: 100%;
+}
+
+.editorLayout-designPanelTabs[role="tablist"] {
+  width: 100%;
+  min-width: unset;
+}
+
+.editorLayout-leftPanel {
+  height: calc(100vh - 160px);
+  padding-right: 16px;
+}
+
+.editorLayout-rightPreview {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-left: 32px;
+}
+
+.update-banner {
+  border-radius: 12px;
+  background: linear-gradient(90deg, #2563eb, #0ea5e9);
+  color: white;
+}
+.update-banner .wds-Text {
+  color: white;
+}
+
+.update-banner button {
+  background: white;
+  color: #4f46e5;
+  font-weight: 500;
+}
+
+.wix-card-header {
+  padding-bottom: 0px !important;
+}
