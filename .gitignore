@@ -26,3 +26,5 @@ npm-debug.log*
 out
 
 wix.config.json
+src/extensions/dashboard/pages/ribbons.extension.ts
+
