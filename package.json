@@ -1,7 +1,7 @@
 {
   "name": "ribbons-labels",
   "type": "module",
-  "version": "1.4n.0",
+  "version": "1.4.0",
   "scripts": {
     "astro": "astro",
     "wix": "wix",
