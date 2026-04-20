@@ -8,7 +8,7 @@ import "./page.css";
 import withProviders from "./withProviders";
 import LabelsTab from "@/components/LabelsTab";
 import RibbonEditorPage from "@/components/editor/RibbonEditorPage";
-import PricingTab from "@/components/PricingTab";
+import PricingTabNew from "@/components/PricingTabNew";
 import FirstSuccessFeedbackModal from "@/components/FirstSuccessFeedbackModal";
 import BottomFeedbackPopup from "@/components/BottomFeedbackPopup";
 import SupportChat from "@/components/SupportChat";
@@ -35,7 +35,7 @@ const TAB_ITEMS: { id: TabId; title: string }[] = [
 ];
 
 const RibbonSettingsPage: FC = () => {
-  const [activeTab, setActiveTab] = useState<TabId>("labels");
+  const [activeTab, setActiveTab] = useState<TabId>("pricing");
   const [editLabel, setEditLabel] = useState<Label | null>(null);
   const [showUpdateBanner, setShowUpdateBanner] = useState(false);
   const [isFirstSuccessSubmitting, setIsFirstSuccessSubmitting] =
@@ -63,7 +63,7 @@ const RibbonSettingsPage: FC = () => {
     duplicateLabel,
     applyStoreSettingsUpdate,
   } = useRibbonLabels();
-
+  // https://www.wix.com/apps/upgrade/ae6e3d23-777d-4246-9403-531514aab8d4?appInstanceId=d732e9cb-8991-4246-b105-b2be7527a888
   useEffect(() => {
     let cancelled = false;
     (async () => {
@@ -284,7 +284,7 @@ const RibbonSettingsPage: FC = () => {
                 onBack={() => setEditLabel(null)}
               />
             )}
-            {activeTab === "pricing" && <PricingTab />}
+            {activeTab === "pricing" && <PricingTabNew />}
           </Box>
         </Box>
         <FirstSuccessFeedbackModal
