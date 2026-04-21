@@ -9,11 +9,7 @@ import {
   parseStoreWeightUnit,
   weightRangeBoundsInUnit,
 } from "../../utils/weightUnits";
-import type {
-  NormalizedProduct,
-  ProductPreview,
-  SearchOption,
-} from "../types";
+import type { NormalizedProduct, ProductPreview, SearchOption } from "../types";
 import {
   clampNewStatusDaysOld,
   conditionGroupNeedsProductInventory,
@@ -24,10 +20,6 @@ import type { StoreAdapter } from "./storeAdapter";
 import { inventoryItemsV3, productsV3 } from "@wix/stores";
 import { categories } from "@wix/categories";
 
-type V3Product = productsV3.V3Product;
-type V3ProductSearch = productsV3.V3ProductSearch;
-type V3InventoryItemQuery = inventoryItemsV3.InventoryItemQuery;
-
 const SEARCH_PRODUCTS_PAGE_LIMIT = 20;
 const INVENTORY_QUERY_PAGE_LIMIT = 100;
 const INVENTORY_PRODUCT_ID_CHUNK = 100;
@@ -35,7 +27,9 @@ const CATEGORY_SEARCH_LIMIT = 20;
 
 type V3ProductSearchFilter = productsV3.CommonSearchWithEntityContext["filter"];
 
-type V3InventoryQueryFilter = NonNullable<V3InventoryItemQuery["filter"]>;
+type V3InventoryQueryFilter = NonNullable<
+  inventoryItemsV3.InventoryItemQuery["filter"]
+>;
 
 /** Resolved once per session from a sample product; V3 search filters use the store catalog weight unit. */
 let cachedCatalogShippingWeightUnit: WeightUnit | undefined;
@@ -279,7 +273,9 @@ export function applyInventoryV3ToNormalizedProduct(
   };
 }
 
-function normalizeProductV3(v3Product: V3Product): NormalizedProduct | null {
+function normalizeProductV3(
+  v3Product: productsV3.V3Product
+): NormalizedProduct | null {
   if (!v3Product) return null;
   const id = v3Product._id;
   const name = v3Product.name ?? "";
@@ -365,12 +361,12 @@ function normalizeProductsV3(
 
 async function fetchAllQueryProductsBySlugIn(
   slugs: string[]
-): Promise<V3Product[]> {
+): Promise<productsV3.V3Product[]> {
   const unique = [...new Set(slugs.filter(Boolean))];
   if (unique.length === 0) return [];
 
   const filter = { slug: { $in: unique } } as V3ProductSearchFilter;
-  const all: V3Product[] = [];
+  const all: productsV3.V3Product[] = [];
   let cursor: string | undefined;
 
   while (true) {
@@ -394,7 +390,8 @@ async function fetchAllQueryProductsBySlugIn(
 async function searchProductsV3(
   search?: Record<string, unknown>,
   rules?: ConditionGroup,
-  allResults: boolean = false
+  allResults: boolean = false,
+  hasInventoryQuantityInContent: boolean = false
 ): Promise<NormalizedProduct[]> {
   const needsCatalogWeight =
     rules && rules.rules.some((r) => r.type === "weightRange");
@@ -413,13 +410,14 @@ async function searchProductsV3(
         limit: SEARCH_PRODUCTS_PAGE_LIMIT,
         ...(cursor ? { cursor } : {}),
       },
-    } as V3ProductSearch);
+    } as productsV3.V3ProductSearch);
 
   if (!allResults) {
     const res = await fetchProducts();
     return maybeMergeInventoryV3FromRules(
       normalizeProductsV3(res.products),
-      rules
+      rules,
+      hasInventoryQuantityInContent
     );
   }
 
@@ -434,20 +432,26 @@ async function searchProductsV3(
     if (!hasNext || !next || page.length === 0) break;
     cursor = next;
   }
-  return maybeMergeInventoryV3FromRules(out, rules);
+  return maybeMergeInventoryV3FromRules(
+    out,
+    rules,
+    hasInventoryQuantityInContent
+  );
 }
 
 function buildInventoryItemsV3QueryFilter(
   productIds: string[],
   rules?: ConditionGroup
-): NonNullable<V3InventoryItemQuery["filter"]> {
+): NonNullable<inventoryItemsV3.InventoryItemQuery["filter"]> {
   const base = { productId: { $in: productIds } } as NonNullable<
-    V3InventoryItemQuery["filter"]
+    inventoryItemsV3.InventoryItemQuery["filter"]
   >;
   if (!rules) return base;
   const inv = getInventoryFilters(rules);
   if (Object.keys(inv as object).length === 0) return base;
-  return { $and: [base, inv] } as NonNullable<V3InventoryItemQuery["filter"]>;
+  return { $and: [base, inv] } as NonNullable<
+    inventoryItemsV3.InventoryItemQuery["filter"]
+  >;
 }
 
 async function fetchInventoryV3ItemsByProductId(
@@ -492,11 +496,16 @@ async function fetchInventoryV3ItemsByProductId(
 
 async function maybeMergeInventoryV3FromRules(
   products: NormalizedProduct[],
-  rules: ConditionGroup | undefined
+  rules: ConditionGroup | undefined,
+  hasInventoryQuantityInContent: boolean = false
 ): Promise<NormalizedProduct[]> {
   if (
     !rules ||
-    !conditionGroupNeedsProductInventory(rules, "v3") ||
+    !conditionGroupNeedsProductInventory(
+      rules,
+      "v3",
+      hasInventoryQuantityInContent
+    ) ||
     products.length === 0
   ) {
     return products;
@@ -512,8 +521,17 @@ async function maybeMergeInventoryV3FromRules(
 
 export function createV3Adapter(): StoreAdapter {
   return {
-    async searchProducts(rules, allResults = false) {
-      return searchProductsV3(undefined, rules, allResults);
+    async searchProducts(
+      rules,
+      allResults = false,
+      hasInventoryQuantityInContent = false
+    ) {
+      return searchProductsV3(
+        undefined,
+        rules,
+        allResults,
+        hasInventoryQuantityInContent
+      );
     },
 
     async getProductsBySlugs(slugs: string[]) {

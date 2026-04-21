@@ -123,8 +123,10 @@ export function splitConditionRulesForScope(rules: ConditionRule[]): {
  * */
 export function conditionGroupNeedsProductInventory(
   rules: ConditionGroup | undefined,
-  context: "v1" | "v3"
+  context: "v1" | "v3",
+  hasInventoryQuantityInContent: boolean = false
 ): boolean {
+  if (context === "v3" && hasInventoryQuantityInContent) return true;
   if (!rules?.rules.length) return false;
   return rules.rules.some(
     (r) =>

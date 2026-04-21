@@ -9,6 +9,7 @@ import { BasicConditionsCard } from "../productsTab/BasicConditionsCard";
 import { AdvancedConditionsCard } from "../productsTab/AdvancedConditionsCard";
 import { ScopeCard } from "../productsTab/ScopeCard";
 import { ConditionsOperatorSection } from "../productsTab/ConditionsOperatorSection";
+import { messageUsesAnyLabelVariable } from "@/utils/labelVariables";
 
 export type ProductsTabProps = {
   value: Label;
@@ -18,6 +19,9 @@ export type ProductsTabProps = {
 const ProductsTab: FC<ProductsTabProps> = ({ value, onChange }) => {
   const helpers = useConditions(value, onChange);
   const applyMode = value.applyMode ?? "all";
+  const hasLabelVariable = messageUsesAnyLabelVariable(
+    value.text.message || ""
+  );
   const [storeWeightUnit, setStoreWeightUnit] = useState<WeightUnit>("lbs");
 
   useEffect(() => {
@@ -30,9 +34,22 @@ const ProductsTab: FC<ProductsTabProps> = ({ value, onChange }) => {
     };
   }, []);
 
+  useEffect(() => {
+    if (hasLabelVariable && applyMode === "all") {
+      onChange({
+        ...value,
+        applyMode: "conditions",
+      });
+    }
+  }, [applyMode, hasLabelVariable, onChange, value]);
+
   return (
     <Box direction="vertical" gap="SP4" width="100%">
-      <ApplyModeCard value={value} onChange={onChange} />
+      <ApplyModeCard
+        value={value}
+        onChange={onChange}
+        disableAllMode={hasLabelVariable}
+      />
 
       {applyMode === "specific" && (
         <SpecificProductsCard value={value} onChange={onChange} />

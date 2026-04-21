@@ -9,11 +9,7 @@ import {
   parseStoreWeightUnit,
   productWeightInRuleUnit,
 } from "../../utils/weightUnits";
-import type {
-  NormalizedProduct,
-  ProductPreview,
-  SearchOption,
-} from "../types";
+import type { NormalizedProduct, ProductPreview, SearchOption } from "../types";
 import {
   clampNewStatusDaysOld,
   conditionGroupNeedsProductInventory,
@@ -124,7 +120,7 @@ export function normalizeProductV1(
     weight,
     weightUnit: weightUnit,
     inventoryStatus: null,
-    inventoryQuantity: null,
+    inventoryQuantity: p.stock?.quantity ?? null,
     inventoryTracked: p.stock?.trackInventory ?? null,
     createdAt: created,
   };
@@ -311,16 +307,21 @@ function applyRestRulesToV1BuilderAND(
 
 async function searchProductsV1(
   builder?: products.ProductsQueryBuilder,
-  rules?: ConditionGroup
+  rules?: ConditionGroup,
+  hasInventoryQuantityInContent: boolean = false
 ): Promise<NormalizedProduct[]> {
   const base = builder ?? products.queryProducts();
 
   if (!rules || rules.rules.length === 0) {
     const allItems = await fetchAllProductsV1(base);
-    const normalizedProducts = allItems
+    let normalizedProducts = allItems
       .map((p) => normalizeProductV1(p))
       .filter((p): p is NormalizedProduct => p != null);
-    return normalizedProducts;
+    return maybeMergeInventoryV1FromRules(
+      normalizedProducts,
+      rules,
+      hasInventoryQuantityInContent
+    );
   }
 
   const { scopeRules, restRules } = splitConditionRulesForScope(rules.rules);
@@ -365,12 +366,11 @@ async function searchProductsV1(
     .map((p) => normalizeProductV1(p))
     .filter((p): p is NormalizedProduct => p != null);
 
-  if (rules) {
-    normalizedProducts = await maybeMergeInventoryV1FromRules(
-      normalizedProducts,
-      rules
-    );
-  }
+  normalizedProducts = await maybeMergeInventoryV1FromRules(
+    normalizedProducts,
+    rules,
+    hasInventoryQuantityInContent
+  );
 
   return normalizedProducts;
 }
@@ -419,11 +419,16 @@ async function fetchInventoryV1ItemsByProductId(
 
 async function maybeMergeInventoryV1FromRules(
   productsList: NormalizedProduct[],
-  rules: ConditionGroup
+  rules?: ConditionGroup,
+  hasInventoryQuantityInContent: boolean = false
 ): Promise<NormalizedProduct[]> {
   if (
     !rules ||
-    !conditionGroupNeedsProductInventory(rules, "v1") ||
+    !conditionGroupNeedsProductInventory(
+      rules,
+      "v1",
+      hasInventoryQuantityInContent
+    ) ||
     productsList.length === 0
   ) {
     return productsList;
@@ -613,8 +618,12 @@ function normalizedProductMatchesV1Rule(
 
 export function createV1Adapter(): StoreAdapter {
   return {
-    async searchProducts(rules) {
-      return searchProductsV1(undefined, rules);
+    async searchProducts(
+      rules,
+      _allResults = false,
+      hasInventoryQuantityInContent = false
+    ) {
+      return searchProductsV1(undefined, rules, hasInventoryQuantityInContent);
     },
 
     async getProductsBySlugs(slugs: string[]) {

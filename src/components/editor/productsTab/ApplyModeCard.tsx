@@ -18,21 +18,29 @@ const APPLY_MODE_OPTIONS: { mode: ApplyMode; label: string; hint: string }[] = [
 function ApplyModePicker({
   value,
   onChange,
+  disableAllMode = false,
 }: {
   value: ApplyMode;
   onChange: (mode: ApplyMode) => void;
+  disableAllMode?: boolean;
 }) {
   return (
     <Box direction="vertical" gap="SP2">
       {APPLY_MODE_OPTIONS.map(({ mode, label, hint }) => {
         const active = value === mode;
+        const isDisabled = disableAllMode && mode === "all";
         return (
           <div
             key={mode}
             role="button"
             tabIndex={0}
-            onClick={() => onChange(mode)}
+            aria-disabled={isDisabled}
+            onClick={() => {
+              if (isDisabled) return;
+              onChange(mode);
+            }}
             onKeyDown={(e) => {
+              if (isDisabled) return;
               if (e.key === "Enter" || e.key === " ") {
                 e.preventDefault();
                 onChange(mode);
@@ -43,11 +51,15 @@ function ApplyModePicker({
               minWidth: "140px",
               padding: "12px 16px",
               borderRadius: "8px",
-              cursor: "pointer",
+              cursor: isDisabled ? "not-allowed" : "pointer",
               background: active ? "#fff" : "transparent",
               border: `1.5px solid ${active ? "#116DFF" : "#dfe3eb"}`,
-              boxShadow: active ? "0 1px 6px rgba(17,109,255,0.12)" : "none",
+              boxShadow:
+                active && !isDisabled
+                  ? "0 1px 6px rgba(17,109,255,0.12)"
+                  : "none",
               transition: "all 0.15s ease",
+              opacity: isDisabled ? 0.45 : 1,
             }}
           >
             <Box direction="vertical" gap="SP0">
@@ -68,9 +80,11 @@ function ApplyModePicker({
 export function ApplyModeCard({
   value,
   onChange,
+  disableAllMode = false,
 }: {
   value: Label;
   onChange: (next: Label) => void;
+  disableAllMode?: boolean;
 }) {
   const applyMode: ApplyMode = value.applyMode ?? "all";
 
@@ -91,7 +105,18 @@ export function ApplyModeCard({
       />
       <Card.Divider />
       <Card.Content>
-        <ApplyModePicker value={applyMode} onChange={setApplyMode} />
+        <Box direction="vertical" gap="SP2">
+          <ApplyModePicker
+            value={applyMode}
+            onChange={setApplyMode}
+            disableAllMode={disableAllMode}
+          />
+          {disableAllMode && (
+            <Text size="small" secondary>
+              "All products" is unavailable when the label contains variables.
+            </Text>
+          )}
+        </Box>
       </Card.Content>
     </Card>
   );

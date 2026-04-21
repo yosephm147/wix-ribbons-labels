@@ -52,6 +52,10 @@ export function extractVariableIds(message: string): LabelVariableId[] {
   return [...found];
 }
 
+export function messageUsesAnyLabelVariable(message: string): boolean {
+  return extractVariableIds(message).length > 0;
+}
+
 export function computeLabelVariables(
   product: NormalizedProduct,
   requiredVarIds: LabelVariableId[]

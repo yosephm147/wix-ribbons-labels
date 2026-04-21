@@ -30,6 +30,7 @@ import {
   THEME_FONT_DROPDOWN_ID,
 } from "@/utils/labelFonts";
 import EmojiPicker, { type EmojiClickData } from "emoji-picker-react";
+import { messageUsesAnyLabelVariable } from "@/utils/labelVariables";
 
 const VARIABLE_OPTIONS = [
   {
@@ -108,6 +109,10 @@ const ContentCard: FC<ContentCardProps> = ({
   const hasSaleVariable = useMemo(() => {
     const message = value.text.message || "";
     return message.includes("{{sale_amt}}") || message.includes("{{sale_pct}}");
+  }, [value.text.message]);
+  const hasInventoryQuantityVariable = useMemo(() => {
+    const message = value.text.message || "";
+    return message.includes("{{inventory_quantity}}");
   }, [value.text.message]);
 
   const [activeFormats, setActiveFormats] = useState<ActiveFormats>({
@@ -470,6 +475,11 @@ const ContentCard: FC<ContentCardProps> = ({
             {hasSaleVariable && (
               <Text size="small" secondary>
                 Note: This label will only appear on items that have a sale.
+              </Text>
+            )}
+            {hasInventoryQuantityVariable && (
+              <Text size="small" secondary>
+                Note: This label will only appear on items that track inventory.
               </Text>
             )}
           </Box>

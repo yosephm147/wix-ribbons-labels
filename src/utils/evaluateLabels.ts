@@ -147,7 +147,8 @@ async function applyOverrides(
 }
 
 async function evaluateConditionRules(
-  conditions: ConditionGroup
+  conditions: ConditionGroup,
+  hasInventoryQuantityInContent: boolean = false
 ): Promise<NormalizedProduct[]> {
   const adapter = await getStoreAdapter();
   let candidates: NormalizedProduct[] = [];
@@ -157,7 +158,11 @@ async function evaluateConditionRules(
     conditions.rules[0]!.type === "includeProductSlugs";
 
   if (!onlyIncludeRule) {
-    candidates = await adapter.searchProducts(conditions, true);
+    candidates = await adapter.searchProducts(
+      conditions,
+      true,
+      hasInventoryQuantityInContent
+    );
   }
 
   const filtered = applyFilters(
@@ -202,7 +207,13 @@ async function getIndexEntryForLabel(label: Label): Promise<{
       isDefault: false,
     };
   }
-  const products = await evaluateConditionRules(label.conditions);
+  const requiredVarIds = extractVariableIds(label.text?.message ?? "");
+  const hasInventoryQuantityInContent =
+    requiredVarIds.includes("inventory_quantity");
+  const products = await evaluateConditionRules(
+    label.conditions,
+    hasInventoryQuantityInContent
+  );
   return { labelId: label.id, products, isDefault: false };
 }
 

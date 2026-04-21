@@ -8,7 +8,8 @@ import type {
 export interface StoreAdapter {
   searchProducts(
     rules?: ConditionGroup,
-    allResults?: boolean
+    allResults?: boolean,
+    hasInventoryQuantityInContent?: boolean
   ): Promise<NormalizedProduct[]>;
 
   getProductsBySlugs(slugs: string[]): Promise<NormalizedProduct[]>;

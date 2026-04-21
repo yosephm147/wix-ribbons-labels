@@ -16,6 +16,7 @@ import type {
   StoreSettings,
   StoreSettingsInput,
 } from "@/lib/storeSettingsTypes";
+import { messageUsesAnyLabelVariable } from "@/utils/labelVariables";
 
 async function recordLabelsConfigViaApi(input: LabelsConfigSnapshotInput) {
   try {
@@ -189,6 +190,7 @@ export function useRibbonLabels() {
         labelIndex: nextLabelIndex,
         defaultLabelIds: nextDefaultLabelIds,
       };
+      console.log("saving config", config);
 
       await embedLabelsConfigThenRecord(
         (props) => embeddedScripts.embedScript(props),
@@ -208,6 +210,14 @@ export function useRibbonLabels() {
     async (updated: Label) => {
       setIsSaving(true);
       try {
+        if (
+          updated.applyMode === "all" &&
+          messageUsesAnyLabelVariable(updated.text.message || "")
+        ) {
+          throw new Error(
+            'Labels with variables cannot use "All products".'
+          );
+        }
         const toSave = sanitizeLabelForSave(updated);
         const nextLabels = !labels.some((l: Label) => l.id === toSave.id)
           ? addLabel(labels, toSave)

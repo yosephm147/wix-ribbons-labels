@@ -2,7 +2,7 @@ import { NO_IMAGE_PRODUCT_IMAGE } from "../productImagePlaceholders";
 import type { StoreAdapter } from "./storeAdapter";
 
 export const noopStoreAdapter: StoreAdapter = {
-  async searchProducts() {
+  async searchProducts(_rules, _allResults, _hasInventoryQuantityInContent) {
     return [];
   },
   async getProductsBySlugs() {
