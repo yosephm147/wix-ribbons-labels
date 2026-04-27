@@ -33,6 +33,17 @@
   .wix-custom-ribbon-clip--outside {
     position: relative !important;
   }
+  /*
+   * Product gallery slider viewport clips inside ribbons if overflow stays hidden.
+   * Scope to SliderGallery only so unrelated swipers are untouched.
+   */
+  [data-hook="SliderGalleryDataHook.Root"] .swiper,
+  [data-hook="SliderGalleryDataHook.Root"] :has(> .swiper) {
+    overflow: visible !important;
+  }
+  [data-hook="SliderGalleryDataHook.Root"] :has(> .swiper) {
+    display: block !important;
+  }
   /* Outside badges: injected under [data-hook="not-image-container"] > a (see main.js). */
   [data-wix-label-outside-strip] {
     position: relative;
