@@ -656,6 +656,33 @@ export function appendBadgeSvgText(
   renderedWidth,
   renderedHeight
 ) {
+  function htmlToPlainTextWithLineBreaks(html) {
+    return String(html)
+      .replace(/<\/(div|p|li|h[1-6])>\s*<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+      .replace(/<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(div|p|li|h[1-6])>/gi, "\n")
+      .replace(/<[^>]*>/g, "");
+  }
+
+  function decodeMessageEntities(value) {
+    var s = String(value == null ? "" : value);
+    if (s.indexOf("&") === -1 && s.indexOf("\u00a0") === -1) return s;
+    if (typeof document === "undefined") {
+      return s.replace(/&(?:amp;)*nbsp;/g, " ").replace(/\u00a0/g, " ");
+    }
+    var out = s;
+    var t = document.createElement("textarea");
+    for (var i = 0; i < 3; i++) {
+      if (out.indexOf("&") === -1) break;
+      t.innerHTML = out;
+      var decoded = String(t.value);
+      if (decoded === out) break;
+      out = decoded;
+    }
+    return out.replace(/\u00a0/g, " ");
+  }
+
   var o = TEXT_OVERRIDES[shape];
   var textX = o ? o.x(vw, vh) : vw / 2;
   var textY = o ? o.y(vw, vh) : vh / 2;
@@ -671,7 +698,9 @@ export function appendBadgeSvgText(
       : labelRaw.indexOf('style="text-align: right;"') !== -1
       ? "start"
       : "middle";
-  var plain = labelRaw.replace(/<[^>]*>/g, "").trim();
+  var plain = decodeMessageEntities(
+    htmlToPlainTextWithLineBreaks(labelRaw)
+  ).trim();
   if (variables && typeof variables === "object") {
     plain = plain.replace(/\{\{([a-zA-Z0-9_]+)\}\}/g, function (full, key) {
       var value = variables[key];
@@ -695,7 +724,19 @@ export function appendBadgeSvgText(
     "font-family": labelFontCssStack(t.font),
     "letter-spacing": t.letterSpacing != null ? t.letterSpacing : 0,
   });
-  textEl.textContent = plain;
+  var lines = plain.split(/\r?\n/);
+  if (lines.length <= 1) {
+    textEl.textContent = plain;
+  } else {
+    for (var li = 0; li < lines.length; li++) {
+      var tspan = svgEl("tspan", {
+        x: textX,
+        dy: li === 0 ? -(lines.length - 1) * 0.6 + "em" : "1.2em",
+      });
+      tspan.textContent = lines[li];
+      textEl.appendChild(tspan);
+    }
+  }
   var textScaleX = 1;
   if (
     renderedWidth != null &&

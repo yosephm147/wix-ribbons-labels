@@ -192,15 +192,21 @@ app.post("/update-settings", async (req, res) => {
       ? seenFirstSuccessModal
       : isFeedbackUpdate
       ? true
-      : null;
+      : undefined;
   const nextHasGivenFeedback =
     typeof hasGivenFeedback === "boolean"
       ? hasGivenFeedback
       : isFeedbackUpdate
       ? true
-      : null;
+      : undefined;
   const nextUnlockedLabels =
-    typeof unlockedLabels === "boolean" ? unlockedLabels : null;
+    typeof unlockedLabels === "boolean" ? unlockedLabels : undefined;
+  const nextSiteId = typeof siteId === "string" ? siteId : undefined;
+  const nextSiteUrl = typeof siteUrl === "string" ? siteUrl : undefined;
+  const nextRating =
+    typeof rating === "number" && Number.isFinite(rating) ? rating : undefined;
+  const nextFeedbackText =
+    typeof feedbackText === "string" ? feedbackText : undefined;
   if (
     isFeedbackUpdate &&
     (!Number.isInteger(rating) || rating < 1 || rating > 5)
@@ -219,38 +225,45 @@ app.post("/update-settings", async (req, res) => {
       });
     }
 
-    const r = await pool.query(
-      `INSERT INTO ribbons_store_settings (
-        instance_id,
-        site_id,
-        site_url,
-        seen_first_success_modal,
-        has_given_feedback,
-        unlocked_labels,
-        rating,
-        feedback_text
-      )
-      VALUES ($1, $2, $3, COALESCE($4, false), COALESCE($5, false), COALESCE($6, false), $7, $8)
+    const columns: string[] = ["instance_id"];
+    const values: Array<string | boolean | number> = [instanceId];
+    const updatableColumns: string[] = [];
+
+    const appendColumn = (
+      column: string,
+      value: string | boolean | number | undefined
+    ) => {
+      if (value === undefined) {
+        return;
+      }
+      columns.push(column);
+      values.push(value);
+      updatableColumns.push(column);
+    };
+
+    appendColumn("site_id", nextSiteId);
+    appendColumn("site_url", nextSiteUrl);
+    appendColumn("seen_first_success_modal", nextSeenFirstSuccessModal);
+    appendColumn("has_given_feedback", nextHasGivenFeedback);
+    appendColumn("unlocked_labels", nextUnlockedLabels);
+    appendColumn("rating", nextRating);
+    appendColumn("feedback_text", nextFeedbackText);
+
+    const placeholders = values.map((_, index) => `$${index + 1}`).join(", ");
+    const updateSetClause =
+      updatableColumns.length > 0
+        ? updatableColumns
+            .map((column) => `${column} = EXCLUDED.${column}`)
+            .join(", ")
+        : "instance_id = EXCLUDED.instance_id";
+
+    const query = `INSERT INTO ribbons_store_settings (${columns.join(", ")})
+      VALUES (${placeholders})
       ON CONFLICT (instance_id)
-      DO UPDATE SET
-        site_url = COALESCE($3, ribbons_store_settings.site_url),
-        seen_first_success_modal = COALESCE($4, ribbons_store_settings.seen_first_success_modal),
-        has_given_feedback = COALESCE($5, ribbons_store_settings.has_given_feedback),
-        unlocked_labels = COALESCE($6, ribbons_store_settings.unlocked_labels),
-        rating = COALESCE($7, ribbons_store_settings.rating),
-        feedback_text = COALESCE($8, ribbons_store_settings.feedback_text)
-      RETURNING seen_first_success_modal, has_given_feedback, unlocked_labels, rating, feedback_text`,
-      [
-        instanceId,
-        siteId,
-        siteUrl,
-        nextSeenFirstSuccessModal,
-        nextHasGivenFeedback,
-        nextUnlockedLabels,
-        typeof rating === "number" && Number.isFinite(rating) ? rating : null,
-        typeof feedbackText === "string" ? feedbackText : null,
-      ]
-    );
+      DO UPDATE SET ${updateSetClause}
+      RETURNING seen_first_success_modal, has_given_feedback, unlocked_labels, rating, feedback_text`;
+
+    const r = await pool.query(query, values);
     const row = r.rows[0] as
       | {
           seen_first_success_modal?: boolean;

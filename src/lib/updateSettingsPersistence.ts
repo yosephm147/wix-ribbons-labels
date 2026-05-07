@@ -75,6 +75,7 @@ async function upsertStoreSettingsViaDevApi(
 ): Promise<StoreSettings> {
   const clean = base.replace(/\/$/, "");
   const url = `${clean}/update-settings`;
+
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -232,9 +233,6 @@ export async function getOrCreateStoreSettings(
         instanceId: input.instanceId,
         siteId: input.siteId,
         siteUrl: input.siteUrl,
-        seenFirstSuccessModal: false,
-        hasGivenFeedback: false,
-        unlockedLabels: false,
       }
     );
   }

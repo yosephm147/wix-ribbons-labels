@@ -94,6 +94,10 @@ function placeCaretAtEnd(el: HTMLElement) {
   sel?.addRange(range);
 }
 
+function normalizeMessageHtmlForStorage(html: string) {
+  return html.replace(/&(?:amp;)*nbsp;/g, " ").replace(/\u00a0/g, " ");
+}
+
 const ContentCard: FC<ContentCardProps> = ({
   value,
   onChange,
@@ -147,7 +151,7 @@ const ContentCard: FC<ContentCardProps> = ({
 
   const notifyChange = () => {
     if (editorRef.current) {
-      const html = editorRef.current.innerHTML;
+      const html = normalizeMessageHtmlForStorage(editorRef.current.innerHTML);
       lastSyncedMessage.current = html;
       onChange({ ...value, text: { ...value.text, message: html } });
     }

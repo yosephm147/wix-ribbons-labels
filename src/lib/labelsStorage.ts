@@ -13,6 +13,35 @@ const defaultLabelsConfig: LabelsConfig = {
   defaultLabelIds: [],
 };
 
+function decodeMessageEntities(value: string): string {
+  let out = value;
+  if (out.includes("&")) {
+    if (typeof document !== "undefined") {
+      const t = document.createElement("textarea");
+      for (let i = 0; i < 3; i += 1) {
+        if (!out.includes("&")) break;
+        t.innerHTML = out;
+        const decoded = t.value;
+        if (decoded === out) break;
+        out = decoded;
+      }
+    } else {
+      out = out.replace(/&(?:amp;)*nbsp;/g, " ");
+    }
+  }
+  return out.replace(/\u00a0/g, " ");
+}
+
+function normalizeLabelsMessages(labels: LabelsConfig["labels"]) {
+  return labels.map((label) => ({
+    ...label,
+    text: {
+      ...label.text,
+      message: decodeMessageEntities(String(label.text?.message ?? "")),
+    },
+  }));
+}
+
 function isLabelsConfig(value: unknown): value is LabelsConfig {
   if (!value || typeof value !== "object") return false;
   const o = value as Record<string, unknown>;
@@ -52,7 +81,7 @@ export function parseLabels(param?: string): LabelsConfig {
     }
     if (!isLabelsConfig(parsed)) return { ...defaultLabelsConfig };
 
-    const labels = parsed.labels;
+    const labels = normalizeLabelsMessages(parsed.labels);
 
     const labelIndex: Record<string, Record<string, LabelIndexEntryVars>> = {};
     if (parsed.labelIndex && typeof parsed.labelIndex === "object") {

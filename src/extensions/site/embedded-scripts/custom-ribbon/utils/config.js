@@ -21,6 +21,12 @@ export function parseLabelsJson(raw) {
     return v;
   }
 
+  function decodeHexEscapes(str) {
+    return String(str).replace(/\\x([0-9a-fA-F]{2})/g, function (_, hex) {
+      return String.fromCharCode(parseInt(hex, 16));
+    });
+  }
+
   /** Try strict JSON first; then the backslash-quote fix used by labelsStorage.parseLabels. */
   function tryParse(str) {
     var c = String(str).trim();
@@ -31,7 +37,11 @@ export function parseLabelsJson(raw) {
       try {
         return parseInner(c.replace(/\\"/g, '"'));
       } catch (e2) {
-        throw e2;
+        try {
+          return parseInner(decodeHexEscapes(c.replace(/\\"/g, '"')));
+        } catch (e3) {
+          throw e3;
+        }
       }
     }
   }
@@ -150,6 +160,8 @@ export function getConfig() {
             resolve(fallbackEmpty);
             return;
           }
+          console.log("HERE1");
+          console.log("jsonScript", jsonScript);
           reject(new Error("no labels config"));
         })
         .catch(reject);
@@ -162,6 +174,7 @@ export function getConfig() {
         return;
       }
     }
+    console.log("jsonScript1", jsonScript);
     reject(new Error("no labels config"));
   });
 }

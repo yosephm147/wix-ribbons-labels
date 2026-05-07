@@ -32,12 +32,37 @@ export type LabelsTabProps = {
 };
 
 const normalizeLabelMessageForDisplay = (message?: string) => {
+  const htmlToPlainText = (html: string) =>
+    html
+      .replace(/<\/(div|p|li|h[1-6])>\s*<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+      .replace(/<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+      .replace(/<br\s*\/?>/gi, "\n")
+      .replace(/<\/(div|p|li|h[1-6])>/gi, "\n")
+      .replace(/<[^>]*>/g, "");
+
+  const decodeMessageEntities = (value: string) => {
+    if (!value.includes("&")) return value.replace(/\u00a0/g, " ");
+    if (typeof document === "undefined") {
+      return value.replace(/&(?:amp;)*nbsp;/g, " ").replace(/\u00a0/g, " ");
+    }
+    let out = value;
+    const t = document.createElement("textarea");
+    for (let i = 0; i < 3; i += 1) {
+      if (!out.includes("&")) break;
+      t.innerHTML = out;
+      const decoded = t.value;
+      if (decoded === out) break;
+      out = decoded;
+    }
+    return out.replace(/\u00a0/g, " ");
+  };
+
   const labelRaw = message || "<b>SALE</b>";
   const isBold = labelRaw.includes("<b>");
   const isUnderline = labelRaw.includes("<u>");
   const isItalic = labelRaw.includes("<i>");
 
-  const label = labelRaw.replace(/<[^>]*>/g, "").trim();
+  const label = decodeMessageEntities(htmlToPlainText(labelRaw)).trim();
   return (
     <Text weight="normal">
       <span
@@ -45,6 +70,7 @@ const normalizeLabelMessageForDisplay = (message?: string) => {
           fontWeight: isBold ? "bold" : "normal",
           textDecoration: isUnderline ? "underline" : "none",
           fontStyle: isItalic ? "italic" : "normal",
+          whiteSpace: "pre-line",
           display: "block",
           width: "100%",
         }}

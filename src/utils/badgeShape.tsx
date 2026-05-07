@@ -67,6 +67,32 @@ export function getDefaultTextSizeForShape(shape: string): number {
 
 export const BADGE_TEXT_MAX_FONT_FRACTION_OF_VH = 0.85;
 
+function decodeMessageEntities(value: string) {
+  if (!value.includes("&")) return value.replace(/\u00a0/g, " ");
+  if (typeof document === "undefined") {
+    return value.replace(/&(?:amp;)*nbsp;/g, " ").replace(/\u00a0/g, " ");
+  }
+  let out = value;
+  const t = document.createElement("textarea");
+  for (let i = 0; i < 3; i += 1) {
+    if (!out.includes("&")) break;
+    t.innerHTML = out;
+    const decoded = t.value;
+    if (decoded === out) break;
+    out = decoded;
+  }
+  return out.replace(/\u00a0/g, " ");
+}
+
+function htmlToPlainTextWithLineBreaks(html: string) {
+  return html
+    .replace(/<\/(div|p|li|h[1-6])>\s*<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+    .replace(/<(div|p|li|h[1-6])\b[^>]*>/gi, "\n")
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/(div|p|li|h[1-6])>/gi, "\n")
+    .replace(/<[^>]*>/g, "");
+}
+
 type ShapePathFn = (
   w: number,
   h: number,
@@ -451,7 +477,10 @@ export const BadgeSvg: FC<BadgeSvgProps> = ({
     : labelRaw.includes('style="text-align: right;"')
     ? "start"
     : "middle";
-  const label = labelRaw.replace(/<[^>]*>/g, "").trim();
+  const label = decodeMessageEntities(
+    htmlToPlainTextWithLineBreaks(labelRaw)
+  ).trim();
+  const lines = label.split(/\r?\n/);
 
   const textColor = value.text?.color || "#000000";
   // fontSize is in viewBox units — SVG scaling makes it appear correctly at any display size
@@ -500,7 +529,17 @@ export const BadgeSvg: FC<BadgeSvgProps> = ({
             .join(" ") || undefined
         }
       >
-        {label}
+        {lines.length <= 1
+          ? label
+          : lines.map((line, index) => (
+              <tspan
+                key={index}
+                x={textX}
+                dy={index === 0 ? `${-(lines.length - 1) * 0.6}em` : "1.2em"}
+              >
+                {line}
+              </tspan>
+            ))}
       </text>
     </svg>
   );
