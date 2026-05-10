@@ -1,13 +1,13 @@
 import React, { type FC } from "react";
 import { Box, Button, Card, Text } from "@wix/design-system";
-import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/wixAppMarketReviewUrl";
+import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/appInfo";
 
 const EARLY_ACCESS_FEATURES = [
   "Unlimited ribbons, badges, and labels",
-  "Show ribbons and labels based on price, inventory, discounts, and more",
-  "Display multiple ribbons and labels on a single product image",
-  "Automatically show sale labels with discount percentages",
-  "Full design control with ready-to-use styles",
+  "Rules based on discounts, inventory, products, and more",
+  "Multiple labels on a single product image",
+  "Automatic sale labels with discount percentages",
+  "Full design customization and templates",
 ];
 
 const PricingTab: FC = () => {
@@ -22,15 +22,19 @@ const PricingTab: FC = () => {
             align="center"
             textAlign="center"
           >
-            <Text size="medium" weight="bold">
-              Everything unlocked during early access
-            </Text>
+            <Box direction="vertical" gap="10px">
+              <Text size="medium" weight="bold">
+                Unlock free early access
+              </Text>
 
-            <Text size="small" secondary>
-              You&apos;re getting the full product at no cost. As pricing rolls
-              out, early access users will continue with the same level of
-              access.
-            </Text>
+              <Text size="small" secondary>
+                You&apos;re getting the full product at no cost during early
+                access.
+                <br />
+                Leave a review during early access to keep the app free for
+                life.
+              </Text>
+            </Box>
 
             <Box direction="horizontal" gap="12px">
               <Button
@@ -42,13 +46,13 @@ const PricingTab: FC = () => {
                   )
                 }
               >
-                Rate on Wix App Market
+                Leave a review
               </Button>
               <Button
                 priority="secondary"
                 onClick={() =>
                   window.open(
-                    "https://powerupapps.com/",
+                    "https://powerupapps.com/wix-product-badges",
                     "_blank",
                     "noopener,noreferrer"
                   )
@@ -64,8 +68,8 @@ const PricingTab: FC = () => {
       <Card>
         <Card.Header
           className="wix-card-header"
-          title="Everything unlocked during early access"
-          subtitle="No tiers. No limits."
+          title="Everything included during early access"
+          subtitle="Full access during early access."
         />
         <Card.Content>
           <Box direction="vertical" gap="12px" padding="4px 0 12px">
@@ -104,8 +108,8 @@ const PricingTab: FC = () => {
       <Card>
         <Card.Header
           className="wix-card-header"
-          title="Like the app? Leave a quick rating"
-          subtitle="Takes 10 seconds and helps a lot."
+          title="Want to keep free access?"
+          subtitle="Leave a quick review during early access to keep the app free for life."
         />
         <Card.Content>
           <Box direction="vertical" gap="16px">

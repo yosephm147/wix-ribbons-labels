@@ -2,6 +2,7 @@ import { type FC, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Box, Heading, IconButton, Text } from "@wix/design-system";
 import { X } from "@wix/wix-ui-icons-common";
+import { APP_NAME } from "@/constants/appInfo";
 
 const ratingOptions = [1, 2, 3, 4, 5];
 const INITIAL_SHOW_DELAY_MS = 1000;
@@ -115,7 +116,6 @@ const BottomFeedbackPopup: FC<BottomFeedbackPopupProps> = ({
       padding="SP4"
       width="80%"
       maxWidth="380px"
-      height="150px"
       style={{
         position: "fixed",
         bottom: "10px",
@@ -127,9 +127,10 @@ const BottomFeedbackPopup: FC<BottomFeedbackPopupProps> = ({
         transition: "transform 450ms ease-out, opacity 450ms ease-out",
         zIndex: 2050,
         background: "#ffffff",
-        border: "1px solid #ebeff5",
+        border: "1px solid rgba(17, 24, 39, 0.08)",
         borderRadius: 16,
-        boxShadow: "0 18px 34px rgba(17, 24, 39, 0.16)",
+        boxShadow:
+          "0 1px 2px rgba(17, 24, 39, 0.06), 0 6px 18px rgba(17, 24, 39, 0.07), 0 14px 36px rgba(17, 24, 39, 0.06)",
         alignItems: "center",
       }}
     >
@@ -145,7 +146,7 @@ const BottomFeedbackPopup: FC<BottomFeedbackPopupProps> = ({
       </div>
       <Box direction="vertical" align="center" verticalAlign="top" gap="SP1">
         <Heading size="medium" as="h1">
-          Enjoying Ribbons & Labels so far?
+          Enjoying {APP_NAME}?
         </Heading>
         <Text
           size="small"
@@ -153,7 +154,7 @@ const BottomFeedbackPopup: FC<BottomFeedbackPopupProps> = ({
           align="center"
           style={{ lineHeight: "22px", maxWidth: 560 }}
         >
-          {`💬 If you've enjoyed using our app, drop us a quick review. Thank you for your support!`}
+          {`Leave a quick review during early access to keep the app free for life.`}
         </Text>
       </Box>
 
@@ -170,7 +171,7 @@ const BottomFeedbackPopup: FC<BottomFeedbackPopupProps> = ({
               border: "none",
               background: "transparent",
               cursor: "pointer",
-              fontSize: 28,
+              fontSize: 32,
               lineHeight: 1,
               paddingLeft: 8,
               paddingRight: 8,

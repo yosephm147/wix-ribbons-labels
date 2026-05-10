@@ -6,7 +6,7 @@ import {
   Modal,
   Text,
 } from "@wix/design-system";
-import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/wixAppMarketReviewUrl";
+import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/appInfo";
 import { AddSmall, EditSmall, LockLockedSmall } from "@wix/wix-ui-icons-common";
 
 export type UnlockLabelsModalProps = {
@@ -71,9 +71,11 @@ const UnlockLabelsModal: FC<UnlockLabelsModalProps> = ({
   <Modal isOpen={isOpen} onRequestClose={onClose} shouldCloseOnOverlayClick>
     <CustomModalLayout
       maxWidth="560px"
-      title="Get free access right now!"
-      subtitle="This app will be paid later but the first 1,000 stores to unlock get it free. Highlight sales, new arrivals, and promos on your store."
-      primaryButtonText="Unlock labels & continue"
+      title="Unlock free early access!"
+      subtitle="Highlight sales, new arrivals, low stock, and promotions across your store.
+      
+      The app is currently free during early access. Leave a review during early access to keep the app free for life."
+      primaryButtonText="Unlock labels"
       primaryButtonOnClick={() => void onUnlockAndContinue()}
       primaryButtonProps={{ disabled: isSaving }}
       secondaryButtonText="Not now"
@@ -90,17 +92,17 @@ const UnlockLabelsModal: FC<UnlockLabelsModalProps> = ({
             {featureRow(
               <AddSmall />,
               "Create your first label",
-              "Templates, then customize message, shape, and style."
+              "Start with templates, then customize text, shape, colors, and placement."
             )}
             {featureRow(
               <EditSmall />,
-              "Tune how labels show",
-              "Placement, sizing, and which products get each label."
+              "Control how labels appear",
+              "Control placement, sizing, visibility rules, and matching products."
             )}
             {featureRow(
               <LockLockedSmall />,
-              "Unlock once for this store",
-              "We remember your choice next time you open the app."
+              "Keep labels updated automatically",
+              "Labels automatically stay in sync with sales, inventory, and product changes."
             )}
           </Box>
 
@@ -116,11 +118,10 @@ const UnlockLabelsModal: FC<UnlockLabelsModalProps> = ({
             }}
           >
             <Text weight="bold" size="small">
-              Enjoying the app?
+              Like the app so far?
             </Text>
             <Text size="small" secondary>
-              A quick review helps other stores discover it and supports future
-              updates.
+              Leave a review to keep the app free for life.
             </Text>
             <Box>
               <Button

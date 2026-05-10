@@ -1,6 +1,7 @@
 import { type FC, useEffect, useMemo, useState } from "react";
 import { Box, Button, InputArea, Modal, Text } from "@wix/design-system";
-import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/wixAppMarketReviewUrl";
+import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/appInfo";
+import { X } from "@wix/wix-ui-icons-common";
 
 type Step =
   | "see-result"
@@ -125,12 +126,13 @@ const FirstSuccessFeedbackModal: FC<FirstSuccessFeedbackModalProps> = ({
     >
       <Box
         direction="vertical"
-        paddingTop="SP7"
+        paddingTop="SP5"
         paddingBottom="SP6"
         paddingLeft="clamp(16px, 4vw, 36px)"
         paddingRight="clamp(16px, 4vw, 36px)"
         // width="100%"
         maxWidth="500px"
+        align="center"
         gap="SP5"
         style={{
           minHeight: 300,
@@ -151,25 +153,21 @@ const FirstSuccessFeedbackModal: FC<FirstSuccessFeedbackModalProps> = ({
           disabled={isSubmitting}
           style={{
             position: "absolute",
-            right: 16,
-            top: 16,
-            width: 28,
-            height: 28,
+            right: 5,
+            top: 5,
             border: "none",
-            borderRadius: 8,
-            background: "#f2f5f8",
-            color: "#667786",
+            background: "transparent",
             cursor: "pointer",
             fontSize: 16,
             lineHeight: 1,
           }}
         >
-          ×
+          <X />
         </button>
 
         {step === "see-result" && (
           <>
-            <Box direction="vertical" gap="SP2">
+            <Box direction="vertical" gap="SP1">
               <Text id="first-success-modal-title" size="medium" weight="bold">
                 Your first label is live 🎉
               </Text>
@@ -193,30 +191,35 @@ const FirstSuccessFeedbackModal: FC<FirstSuccessFeedbackModalProps> = ({
         )}
 
         {step === "worked" && (
-          <>
-            <Text id="first-success-modal-title" size="medium" weight="bold">
-              Everything look right?
-            </Text>
+          <Box direction="vertical" gap="SP5">
+            <Box direction="vertical" gap="SP1">
+              <Text id="first-success-modal-title" size="medium" weight="bold">
+                Does everything look right?
+              </Text>
+              <Text size="small" secondary>
+                Your label should now be visible on your storefront.
+              </Text>
+            </Box>
             <Box direction="horizontal" gap="SP2">
-              <Button onClick={handleWorkedYes}>Yes, looks good</Button>
+              <Button onClick={handleWorkedYes}>Yep, looks good</Button>
               <Button priority="secondary" onClick={handleWorkedNo}>
                 Not really
               </Button>
             </Box>
-          </>
+          </Box>
         )}
 
         {step === "rating" && (
-          <>
-            <Box direction="vertical" gap="SP2">
+          <Box direction="vertical" gap="SP3" align="center">
+            <Box direction="vertical" gap="SP1">
               <Text id="first-success-modal-title" size="medium" weight="bold">
                 How&apos;s your experience so far?
               </Text>
               <Text size="small" secondary>
-                Pick a quick rating.
+                Your feedback helps improve the app.
               </Text>
             </Box>
-            <Box direction="horizontal">
+            <Box direction="horizontal" paddingRight="SP1" paddingLeft="SP2">
               {ratingOptions.map((value) => (
                 <button
                   key={value}
@@ -229,7 +232,7 @@ const FirstSuccessFeedbackModal: FC<FirstSuccessFeedbackModalProps> = ({
                     border: "none",
                     background: "transparent",
                     cursor: "pointer",
-                    fontSize: 28,
+                    fontSize: 32,
                     lineHeight: 1,
                     paddingLeft: 8,
                     paddingRight: 8,
@@ -243,7 +246,7 @@ const FirstSuccessFeedbackModal: FC<FirstSuccessFeedbackModalProps> = ({
                 </button>
               ))}
             </Box>
-          </>
+          </Box>
         )}
 
         {step === "internal-feedback" && (

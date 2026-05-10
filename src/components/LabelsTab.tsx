@@ -207,7 +207,7 @@ const LabelsTab: FC<LabelsTabProps> = ({
                   onClick={() => setIsUnlockModalOpen(true)}
                   disabled={isSaving}
                 >
-                  Unlock to create your a label
+                  Unlock free access
                 </Button>
               ) : (
                 <Button

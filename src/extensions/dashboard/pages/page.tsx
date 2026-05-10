@@ -14,7 +14,7 @@ import BottomFeedbackPopup from "@/components/BottomFeedbackPopup";
 import SupportChat from "@/components/SupportChat";
 import type { Label } from "./types";
 import { useRibbonLabels } from "./useRibbonLabels";
-import { WIX_APP_MARKET_REVIEW_URL } from "@/constants/wixAppMarketReviewUrl";
+import { APP_NAME, WIX_APP_MARKET_REVIEW_URL } from "@/constants/appInfo";
 
 const MANAGE_INSTALLED_APPS_PAGE_ID = "ad471122-7305-4007-9210-2a764d2e5e57";
 
@@ -219,7 +219,7 @@ const RibbonSettingsPage: FC = () => {
   return (
     <Page className="page-container">
       <Page.Header
-        title="Ribbons & Labels"
+        title={APP_NAME}
         subtitle="Configure ribbons and labels for your store."
       />
       <Page.Content className="page-content">
