@@ -27,13 +27,13 @@ export default function SupportChat({
     };
 
     // inject Tidio once
-    if (document.getElementById("tidio-script")) return;
-
-    const s = document.createElement("script");
-    s.src = `https://code.tidio.co/${tidioKey}.js`;
-    s.async = true;
-    s.id = "tidio-script";
-    document.body.appendChild(s);
+    if (!document.getElementById("tidio-script")) {
+      const s = document.createElement("script");
+      s.src = `https://code.tidio.co/${tidioKey}.js`;
+      s.async = true;
+      s.id = "tidio-script";
+      document.body.appendChild(s);
+    }
 
     // Poll for API availability
     let pollCount = 0;
@@ -45,6 +45,8 @@ export default function SupportChat({
 
         // Set visitor data with location and tags
         window.tidioChatApi?.setVisitorData({
+          email: merchantEmail || `${siteUrl}@noemail.local`,
+          name: merchantName || siteUrl,
           tags: [
             `plan: ${plan || "unknown"}`,
             `site: ${siteUrl}`,

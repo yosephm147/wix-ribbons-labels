@@ -6,7 +6,11 @@ declare global {
     tidioChatApi?: {
       open(): void;
       messageFromVisitor(message: string): void;
-      setVisitorData?(data: { tags?: string[] }): void;
+      setVisitorData?(data: {
+        email?: string;
+        name?: string;
+        tags?: string[];
+      }): void;
     };
   }
 
