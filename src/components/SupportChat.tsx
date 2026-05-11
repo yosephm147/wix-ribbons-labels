@@ -18,6 +18,14 @@ export default function SupportChat({
   tidioKey: string;
 }) {
   useEffect(() => {
+    if (!tidioKey) return;
+
+    document.tidioIdentify = {
+      distinct_id: siteUrl,
+      email: merchantEmail || `${siteUrl}@noemail.local`,
+      name: merchantName || siteUrl,
+    };
+
     // inject Tidio once
     if (document.getElementById("tidio-script")) return;
 
@@ -35,13 +43,6 @@ export default function SupportChat({
       if (window.tidioChatApi && window.tidioChatApi.setVisitorData) {
         clearInterval(pollInterval);
 
-        // Set Tidio identify data
-        document.tidioIdentify = {
-          distinct_id: siteUrl,
-          email: merchantEmail || `${siteUrl}@noemail.local`,
-          name: merchantName || siteUrl,
-        };
-
         // Set visitor data with location and tags
         window.tidioChatApi?.setVisitorData({
           tags: [
@@ -49,6 +50,7 @@ export default function SupportChat({
             `site: ${siteUrl}`,
             `instance: ${instanceId}`,
             `siteId: ${siteId}`,
+            "app: product labels",
           ],
         });
       } else if (pollCount >= 20) {
