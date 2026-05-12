@@ -62,17 +62,38 @@ export const POSITION_OPTIONS = [
 
 export type PositionKey = (typeof POSITION_OPTIONS)[number];
 
+const defaultMargin = "10";
 export const PREDEFINED_POSITION_MARGINS: Record<PositionKey, MarginSettings> =
   {
-    "top-left": { top: "0", right: "", bottom: "", left: "0" },
-    "top-center": { top: "0", right: "", bottom: "", left: "" },
-    "top-right": { top: "0", right: "0", bottom: "", left: "" },
-    "middle-left": { top: "", right: "", bottom: "", left: "0" },
+    "top-left": {
+      top: defaultMargin,
+      right: "",
+      bottom: "",
+      left: defaultMargin,
+    },
+    "top-center": { top: defaultMargin, right: "", bottom: "", left: "" },
+    "top-right": {
+      top: defaultMargin,
+      right: defaultMargin,
+      bottom: "",
+      left: "",
+    },
+    "middle-left": { top: "", right: "", bottom: "", left: defaultMargin },
     center: { top: "", right: "", bottom: "", left: "" },
-    "middle-right": { top: "", right: "0", bottom: "", left: "" },
-    "bottom-left": { top: "", right: "", bottom: "0", left: "0" },
-    "bottom-center": { top: "", right: "", bottom: "0", left: "" },
-    "bottom-right": { top: "", right: "0", bottom: "0", left: "" },
+    "middle-right": { top: "", right: defaultMargin, bottom: "", left: "" },
+    "bottom-left": {
+      top: "",
+      right: "",
+      bottom: defaultMargin,
+      left: defaultMargin,
+    },
+    "bottom-center": { top: "", right: "", bottom: defaultMargin, left: "" },
+    "bottom-right": {
+      top: "",
+      right: defaultMargin,
+      bottom: defaultMargin,
+      left: "",
+    },
   };
 
 /** Badge sits on the product media vs in a row below it (outside). */

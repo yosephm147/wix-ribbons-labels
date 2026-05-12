@@ -76,9 +76,9 @@ const BadgeCard: FC<BadgeCardProps> = ({ value, onChange }) => {
                       height="36px"
                       borderRadius="50%"
                       flexShrink="0"
+                      border="1px solid #dfe3eb"
                       style={{
                         backgroundColor: bgColor || "transparent",
-                        border: "1px solid #dfe3eb",
                       }}
                     />
                     <Box direction="vertical" gap="SP0">
@@ -162,7 +162,7 @@ const BadgeCard: FC<BadgeCardProps> = ({ value, onChange }) => {
                 })
               }
             >
-              Clip badge to image
+              Hide parts outside image
             </Checkbox>
             <ShapePicker
               value={value.shape}

@@ -2,8 +2,8 @@ import { createElement, type ReactNode } from "react";
 
 /**
  * Font presets for badge text. `stack` is a full CSS `font-family` list (web-safe / system),
- * except the theme default row which uses `inherit`.
- * Kept in sync with `custom-ribbon/utils/labelFonts.js` for the site embed.
+ * while the theme default row uses a preview-safe fallback stack here.
+ * The live site embedded script resolves the actual surrounding theme font.
  */
 export type LabelFontOption = {
   id: string;
@@ -17,7 +17,10 @@ export type LabelFontOption = {
  */
 export const THEME_FONT_DROPDOWN_ID = "theme_default";
 
-/** First option uses `THEME_FONT_DROPDOWN_ID`; saving clears `text.font` (site / theme cascade). */
+/**
+ * First option uses `THEME_FONT_DROPDOWN_ID`; saving clears `text.font`.
+ * Dashboard/editor previews fall back to `sans-serif`; the live site embed resolves the real theme font.
+ */
 export const FONT_OPTIONS: readonly LabelFontOption[] = [
   {
     id: THEME_FONT_DROPDOWN_ID,
@@ -112,7 +115,8 @@ export function labelFontDropdownOptions(): {
 
 /**
  * Resolves stored `text.font` (preset id or raw `font-family` string) for CSS/SVG.
- * Missing / theme default → `sans-serif` (site / parent typography).
+ * Missing / theme default → preview/editor fallback `sans-serif`.
+ * The embedded script injects the live site theme font separately when available.
  */
 export function labelFontCssStack(font: string | undefined): string {
   if (font == null || font === "" || font === THEME_FONT_DROPDOWN_ID) {

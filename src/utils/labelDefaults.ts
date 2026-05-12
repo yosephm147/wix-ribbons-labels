@@ -1,7 +1,8 @@
 import type { Label, ShapeSize } from "@/extensions/dashboard/pages/types";
+import { PREDEFINED_POSITION_MARGINS } from "@/extensions/dashboard/pages/types";
 import { SHAPE_DEFAULTS, getDefaultTextSizeForShape } from "@/utils/badgeShape";
 
-const DEFAULT_SHAPE = "rectangle";
+const DEFAULT_SHAPE = "rounded-rectangle";
 
 function defaultSizes(): Pick<
   Label["shapeSize"],
@@ -42,7 +43,7 @@ export function createNewLabel(): Label {
       shapeSizeMode: "global",
       ...defaultSizes(),
       rotation: 0,
-      margin: { top: "0", left: "0", bottom: "", right: "" },
+      margin: PREDEFINED_POSITION_MARGINS["top-left"],
       badgeImagePlacement: "inside",
       badgeOutsideSlot: "above_product_title",
       overflowHidden: true,
@@ -50,7 +51,7 @@ export function createNewLabel(): Label {
     },
     text: {
       message: "<b>SALE</b>",
-      color: "#000000",
+      color: "#ffffff",
       size: getDefaultTextSizeForShape(DEFAULT_SHAPE),
       letterSpacing: 0,
     },

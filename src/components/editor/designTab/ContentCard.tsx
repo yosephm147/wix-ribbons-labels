@@ -259,9 +259,9 @@ const ContentCard: FC<ContentCardProps> = ({
                       height="36px"
                       borderRadius="50%"
                       flexShrink="0"
+                      border="1px solid #dfe3eb"
                       style={{
                         backgroundColor: textColor || "transparent",
-                        border: "1px solid #dfe3eb",
                       }}
                     />
                     <Box direction="vertical" gap="SP0">

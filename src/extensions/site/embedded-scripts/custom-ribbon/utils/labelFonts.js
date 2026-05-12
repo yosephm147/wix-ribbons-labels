@@ -1,6 +1,8 @@
 /**
  * Preset stacks by id — must match `FONT_OPTIONS` in `src/utils/labelFonts.ts`.
  */
+export var WIX_THEME_DEFAULT_FONT_STYLE_VAR = "--wst-font-style-body-medium";
+
 var LABEL_FONT_STACKS = {
   arial:
     'Arial, "Helvetica Neue", Helvetica, "Liberation Sans", "Nimbus Sans L", ui-sans-serif, sans-serif',
@@ -18,9 +20,16 @@ var LABEL_FONT_STACKS = {
     '"Trebuchet MS", "Lucida Grande", "Lucida Sans Unicode", "Segoe UI", Arial, ui-sans-serif, sans-serif',
 };
 
-export function labelFontCssStack(font) {
-  if (font == null || font === "" || font === "theme_default")
-    return "sans-serif";
+export function labelUsesThemeDefaultFont(font) {
+  return font == null || font === "" || font === "theme_default";
+}
+
+export function labelFontCssStack(font, themeFontFamily) {
+  themeFontFamily =
+    typeof themeFontFamily === "string" ? themeFontFamily.trim() : "";
+  if (labelUsesThemeDefaultFont(font)) {
+    return themeFontFamily || "sans-serif";
+  }
   var preset = LABEL_FONT_STACKS[font];
   if (preset) return preset;
   if (typeof font === "string") {

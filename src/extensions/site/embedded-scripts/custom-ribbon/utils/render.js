@@ -1,5 +1,9 @@
 import { ribbonClass } from "./dom.js";
-import { labelFontCssStack } from "./labelFonts.js";
+import {
+  labelFontCssStack,
+  labelUsesThemeDefaultFont,
+  WIX_THEME_DEFAULT_FONT_STYLE_VAR,
+} from "./labelFonts.js";
 
 export var SVG_NS = "http://www.w3.org/2000/svg";
 
@@ -654,7 +658,8 @@ export function appendBadgeSvgText(
   vh,
   variables,
   renderedWidth,
-  renderedHeight
+  renderedHeight,
+  themeFontFamily
 ) {
   function htmlToPlainTextWithLineBreaks(html) {
     return String(html)
@@ -721,9 +726,20 @@ export function appendBadgeSvgText(
     "font-weight": isBold ? "bold" : "normal",
     "text-decoration": isUnderline ? "underline" : "none",
     "font-style": isItalic ? "italic" : "normal",
-    "font-family": labelFontCssStack(t.font),
+    "font-family": labelFontCssStack(t.font, themeFontFamily),
     "letter-spacing": t.letterSpacing != null ? t.letterSpacing : 0,
   });
+  if (labelUsesThemeDefaultFont(t.font)) {
+    textEl.style.setProperty(
+      "font",
+      "var(" +
+        WIX_THEME_DEFAULT_FONT_STYLE_VAR +
+        ", normal normal 400 16px/1.6 sans-serif)"
+    );
+    textEl.style.setProperty("font-size", fontSize + "px");
+    textEl.style.setProperty("font-weight", isBold ? "bold" : "normal");
+    textEl.style.setProperty("font-style", isItalic ? "italic" : "normal");
+  }
   var lines = plain.split(/\r?\n/);
   if (lines.length <= 1) {
     textEl.textContent = plain;
@@ -924,7 +940,17 @@ export function renderBadge(label, ctx) {
     svg.style.transformOrigin = "center center";
   }
   appendBadgeShape(svg, shape, vw, vh, label.backgroundColor || undefined);
-  appendBadgeSvgText(svg, label, shape, vw, vh, ctx.variables, w, h);
+  appendBadgeSvgText(
+    svg,
+    label,
+    shape,
+    vw,
+    vh,
+    ctx.variables,
+    w,
+    h,
+    ctx.themeFontFamily
+  );
   badge.appendChild(svg);
   clip.appendChild(badge);
   return clip;

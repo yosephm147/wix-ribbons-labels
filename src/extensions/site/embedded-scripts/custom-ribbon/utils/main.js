@@ -19,6 +19,7 @@ import {
   outsideJustifyFromMargin,
   applyOutsideStripFlowMargins,
 } from "./render.js";
+import { wixRibbonsLog } from "./log.js";
 
 var MOBILE_MAX_PX = 768;
 var STACK_GAP_PX = 6;
@@ -56,7 +57,7 @@ function localTimeMs() {
 
 function logRerender(reason) {
   try {
-    console.log("[WixRibbon] Rerender:", reason, localTimeMs());
+    wixRibbonsLog(false, "[WixRibbon] Rerender:", reason, localTimeMs());
   } catch (e) {}
 }
 
@@ -132,6 +133,104 @@ function isOutsidePlacement(label) {
     label.shapeSize &&
     label.shapeSize.badgeImagePlacement === "outside"
   );
+}
+
+function labelUsesThemeFont(label) {
+  var font = label && label.text ? label.text.font : null;
+  return font == null || font === "" || font === "theme_default";
+}
+
+function labelIdsUseThemeFont(labelIds, labelsById) {
+  for (var i = 0; i < labelIds.length; i++) {
+    if (labelUsesThemeFont(labelsById[labelIds[i]])) return true;
+  }
+  return false;
+}
+
+var WIX_THEME_DEFAULT_FONT_VAR = "--wst-font-style-body-medium";
+var cachedThemeFontFamilyFromCssVar = "";
+var hasResolvedThemeFontFamilyFromCssVar = false;
+
+function readComputedFontFamily(el) {
+  if (!el || typeof window === "undefined" || !window.getComputedStyle) {
+    return "";
+  }
+  try {
+    var fontFamily = window.getComputedStyle(el).fontFamily;
+    if (fontFamily == null) return "";
+    fontFamily = String(fontFamily).trim();
+    if (
+      !fontFamily ||
+      fontFamily === "inherit" ||
+      fontFamily === "initial" ||
+      fontFamily === "unset"
+    ) {
+      return "";
+    }
+    return fontFamily;
+  } catch (e) {
+    return "";
+  }
+}
+
+function resolveThemeFontFamilyFromCssVar(hostEl) {
+  if (
+    typeof document === "undefined" ||
+    typeof window === "undefined" ||
+    !window.getComputedStyle
+  ) {
+    return "";
+  }
+  var probeHost = hostEl || document.body || document.documentElement;
+  if (!probeHost || typeof probeHost.appendChild !== "function") return "";
+  try {
+    var token = window
+      .getComputedStyle(probeHost)
+      .getPropertyValue(WIX_THEME_DEFAULT_FONT_VAR);
+    if (!token || !String(token).trim()) return "";
+  } catch (e) {
+    return "";
+  }
+  var probe = document.createElement("span");
+  probe.textContent = "A";
+  probe.style.cssText =
+    "position:absolute;visibility:hidden;pointer-events:none;white-space:nowrap;" +
+    "font:var(" +
+    WIX_THEME_DEFAULT_FONT_VAR +
+    ", inherit);";
+  probeHost.appendChild(probe);
+  try {
+    return readComputedFontFamily(probe);
+  } finally {
+    if (probe.parentNode) probe.parentNode.removeChild(probe);
+  }
+}
+
+function resolveThemeFontFamilyFromMount(mount) {
+  var candidates = mount
+    ? [mount.nameEl, mount.priceEl, mount.layout, mount.link, mount.root]
+    : [document.body, document.documentElement];
+  if (!hasResolvedThemeFontFamilyFromCssVar) {
+    var themeHost =
+      (mount &&
+        (mount.root ||
+          mount.layout ||
+          mount.link ||
+          mount.nameEl ||
+          mount.priceEl)) ||
+      document.body ||
+      document.documentElement;
+    cachedThemeFontFamilyFromCssVar =
+      resolveThemeFontFamilyFromCssVar(themeHost);
+    hasResolvedThemeFontFamilyFromCssVar = true;
+  }
+  var fontFromThemeVar = cachedThemeFontFamilyFromCssVar;
+  if (fontFromThemeVar) return fontFromThemeVar;
+  for (var i = 0; i < candidates.length; i++) {
+    var fontFamily = readComputedFontFamily(candidates[i]);
+    if (fontFamily) return fontFamily;
+  }
+  return "";
 }
 
 function applyOutsideStripSizing(strip, slot) {
@@ -397,7 +496,8 @@ function buildOutsideStrip(
   sizeKey,
   slotKey,
   map,
-  productSlug
+  productSlug,
+  themeFontFamily
 ) {
   if (labelIds.length === 0) return null;
   var anchorMargin = labelsById[labelIds[0]].shapeSize.margin || DEFAULT_MARGIN;
@@ -422,6 +522,7 @@ function buildOutsideStrip(
       outsideStripInline: inline,
       outsideStripAlignViaParent: alignViaParent,
       variables: variables,
+      themeFontFamily: themeFontFamily,
     });
     fragment.appendChild(badge);
     cumulative += sz.height + STACK_GAP_PX;
@@ -551,6 +652,19 @@ function attachLabels(container, map, pageKey, sizeKey, opts) {
   }
   if (insideIds.length === 0 && outsideIds.length === 0) return;
 
+  var outsideMount = null;
+  var themeFontFamily = "";
+  if (labelIdsUseThemeFont(labelIdsForProduct, labelsById) && productSlug) {
+    if (isPdpMainProductAttach) {
+      themeFontFamily = resolveThemeFontFamilyFromMount(
+        findProductPageOutsidePlacementMount(productSlug)
+      );
+    } else {
+      outsideMount = findOutsidePlacementMount(container, productSlug);
+      themeFontFamily = resolveThemeFontFamilyFromMount(outsideMount);
+    }
+  }
+
   if (container.hasAttribute(dataLabelAttached)) {
     var hasInsideArtifacts = !!container.querySelector("." + ribbonClass);
     var hasOutsideArtifacts = false;
@@ -594,6 +708,7 @@ function attachLabels(container, map, pageKey, sizeKey, opts) {
         outsideLayout: outsideLayout,
         outsideStripInline: outsideStripInline,
         variables: variables,
+        themeFontFamily: themeFontFamily,
       });
       fragment.appendChild(badge);
       cumulative += sz.height + STACK_GAP_PX;
@@ -610,7 +725,8 @@ function attachLabels(container, map, pageKey, sizeKey, opts) {
   if (outsideIds.length > 0 && !isPdpMainProductAttach) {
     // if (isPdpMainProductAttach && isPdpMainProductAttach.insideOnly === false) {
 
-    var mount = findOutsidePlacementMount(container, productSlug);
+    var mount =
+      outsideMount || findOutsidePlacementMount(container, productSlug);
     if (mount) {
       var slotGroups = {};
       for (var gi = 0; gi < outsideIds.length; gi++) {
@@ -631,7 +747,8 @@ function attachLabels(container, map, pageKey, sizeKey, opts) {
           sizeKey,
           slotKey,
           map,
-          productSlug
+          productSlug,
+          themeFontFamily
         );
         if (strip) insertOutsideStrip(mount, slotKey, strip);
       }
@@ -686,6 +803,10 @@ function attachProductPageOutsideLabels(map, pageKey, sizeKey, pdpSlug) {
   if (!mount || !mount.link) return;
   if (mount.link.hasAttribute(dataLabelAttached)) return;
 
+  var themeFontFamily = labelIdsUseThemeFont(outsideIds, labelsById)
+    ? resolveThemeFontFamilyFromMount(mount)
+    : "";
+
   mount.link.setAttribute(dataLabelAttached, "true");
 
   var slotGroups = {};
@@ -707,7 +828,8 @@ function attachProductPageOutsideLabels(map, pageKey, sizeKey, pdpSlug) {
       sizeKey,
       slotKey,
       map,
-      pdpSlug
+      pdpSlug,
+      themeFontFamily
     );
     if (strip) insertOutsideStrip(mount, slotKey, strip);
   }

@@ -163,10 +163,6 @@ export function useRibbonLabels() {
           return;
         }
         console.error("Failed to load ribbon settings:", error);
-        dashboard.showToast({
-          message: (error as Error).message || "Failed to load settings",
-          type: "error",
-        });
       } finally {
         if (!cancelled) setIsLoading(false);
       }
@@ -214,9 +210,7 @@ export function useRibbonLabels() {
           updated.applyMode === "all" &&
           messageUsesAnyLabelVariable(updated.text.message || "")
         ) {
-          throw new Error(
-            'Labels with variables cannot use "All products".'
-          );
+          throw new Error('Labels with variables cannot use "All products".');
         }
         const toSave = sanitizeLabelForSave(updated);
         const nextLabels = !labels.some((l: Label) => l.id === toSave.id)

@@ -1,5 +1,6 @@
 import { getConfig } from "./utils/config.js";
 import { buildLabelMap } from "./utils/map.js";
+import { wixRibbonsLog } from "./utils/log.js";
 import { run, setupObservers } from "./utils/main.js";
 
 function localTimeMs() {
@@ -20,19 +21,19 @@ function localTimeMs() {
 function initRibbon() {
   var startedAt = Date.now();
   try {
-    console.log("[WixRibbons] Start Embed", localTimeMs());
+    wixRibbonsLog(false, "[WixRibbons] Start Embed", localTimeMs());
   } catch (e) {}
   try {
     getConfig()
       .then(function (config) {
-        console.log("[WixRibbons] config", config);
         var map = buildLabelMap(config);
         var ids = Object.keys(map.labelsById);
         if (!ids.length) return;
         run(map, "initial");
         setupObservers(map);
         try {
-          console.log(
+          wixRibbonsLog(
+            false,
             "[WixRibbon] End Embed",
             localTimeMs(),
             "(" + (Date.now() - startedAt) + "ms)"
@@ -41,11 +42,11 @@ function initRibbon() {
       })
       .catch(function (e) {
         try {
-          console.log("[WixRibbon]", e && e.message ? e.message : e);
+          wixRibbonsLog(true, "[WixRibbon]", e && e.message ? e.message : e);
         } catch (err) {}
       });
   } catch (err) {
-    console.error("[WixRibbon]", err);
+    wixRibbonsLog(true, "[WixRibbon]", err);
   }
 }
 
